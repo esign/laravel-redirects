@@ -4,12 +4,12 @@ namespace Esign\Redirects\Tests;
 
 use Esign\Redirects\DataTransferObjects\RedirectDTO;
 use Esign\Redirects\Models\Redirect;
-use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 
 class RedirectDTOTest extends TestCase
 {
-    use LazilyRefreshDatabase;
+    use RefreshDatabase;
 
     /** @test */
     public function it_can_create_from_a_redirect()

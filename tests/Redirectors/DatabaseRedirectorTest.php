@@ -6,13 +6,13 @@ use Closure;
 use Esign\Redirects\Models\Redirect;
 use Esign\Redirects\Redirectors\DatabaseRedirector;
 use Esign\Redirects\Tests\TestCase;
-use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 
 class DatabaseRedirectorTest extends TestCase
 {
-    use LazilyRefreshDatabase;
+    use RefreshDatabase;
 
     /** @test */
     public function it_can_cache_redirects()

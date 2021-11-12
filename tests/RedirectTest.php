@@ -1,0 +1,88 @@
+<?php
+
+namespace Esign\Redirects\Tests;
+
+use Esign\Redirects\Models\Redirect;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Http\Response;
+
+class RedirectTest extends TestCase
+{
+    use LazilyRefreshDatabase;
+
+    /** @test */
+    public function it_can_redirect_using_plain_urls()
+    {
+        Redirect::create(['old_url' => 'my-old-url', 'new_url' => 'my-new-url']);
+
+        $this
+            ->get('my-old-url')
+            ->assertStatus(Response::HTTP_FOUND)
+            ->assertRedirect('my-new-url');
+    }
+
+    /** @test */
+    public function it_can_redirect_using_route_parameters()
+    {
+        Redirect::create(['old_url' => 'my-old-url/{slug}', 'new_url' => 'my-new-url/{slug}']);
+
+        $this
+            ->get('my-old-url/abc')
+            ->assertStatus(Response::HTTP_FOUND)
+            ->assertRedirect('my-new-url/abc');
+    }
+
+    /** @test */
+    public function it_can_redirect_using_multiple_route_parameters()
+    {
+        Redirect::create(['old_url' => 'my-old-url/{slug}/{year}', 'new_url' => 'my-new-url/{year}/{slug}']);
+
+        $this
+            ->get('my-old-url/abc/2020')
+            ->assertStatus(Response::HTTP_FOUND)
+            ->assertRedirect('my-new-url/2020/abc');
+    }
+
+    /** @test */
+    public function it_can_redirect_to_external_urls()
+    {
+        Redirect::create(['old_url' => 'my-old-url', 'new_url' => 'https://www.example.com']);
+
+        $this
+            ->get('my-old-url')
+            ->assertStatus(Response::HTTP_FOUND)
+            ->assertRedirect('https://www.example.com');
+    }
+
+    /** @test */
+    public function it_can_redirect_using_a_custom_status_code()
+    {
+        Redirect::create([
+            'old_url' => 'my-old-url',
+            'new_url' => 'my-new-url',
+            'status_code' => Response::HTTP_PERMANENTLY_REDIRECT,
+        ]);
+
+        $this
+            ->get('my-old-url')
+            ->assertStatus(Response::HTTP_PERMANENTLY_REDIRECT)
+            ->assertRedirect('my-new-url');
+    }
+
+    /** @test */
+    public function it_wont_affect_existing_routes()
+    {
+        $this
+            ->get('existing-url')
+            ->assertSuccessful()
+            ->assertSee('existing url');
+    }
+
+    /** @test */
+    public function it_will_only_redirect_a_404_status()
+    {
+        $this
+            ->get('status-code/418')
+            ->assertStatus(418);
+    }
+}

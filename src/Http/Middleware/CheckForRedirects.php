@@ -5,8 +5,8 @@ namespace Esign\Redirects\Http\Middleware;
 use Closure;
 use Esign\Redirects\Contracts\RedirectorContract;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Routing\Router;
+use Symfony\Component\HttpFoundation\Response;
 
 class CheckForRedirects
 {

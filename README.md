@@ -49,6 +49,16 @@ return [
      * It should implement the RedirectorContract interface.
      */
     'redirector' => Esign\Redirects\Redirectors\DatabaseRedirector::class,
+
+    /**
+     * The key that will be used to cache the redirects.
+     */
+    'cache_key' => 'redirects',
+
+    /**
+     * The amount of seconds the redirects will be cached for.
+     */
+    'cache_remember' => 15,
 ];
 ```
 

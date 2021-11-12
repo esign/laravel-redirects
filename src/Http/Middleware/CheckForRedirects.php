@@ -4,6 +4,8 @@ namespace Esign\Redirects\Http\Middleware;
 
 use Closure;
 use Esign\Redirects\Contracts\RedirectorContract;
+use Illuminate\Container\Container;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,7 +31,7 @@ class CheckForRedirects
     protected function attemptRedirect(Request $request)
     {
         $redirects = app(RedirectorContract::class)->getRedirectsForRequest($request);
-        $router = app(Router::class);
+        $router = new Router(app(Dispatcher::class), app(Container::class));
         foreach ($redirects as $redirectDTO) {
             $router->redirect(
                 $redirectDTO->oldUrl,

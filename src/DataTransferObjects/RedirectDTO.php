@@ -11,7 +11,8 @@ class RedirectDTO
         public string $oldUrl,
         public string $newUrl,
         public int $statusCode = Response::HTTP_FOUND,
-    ) {}
+    ) {
+    }
 
     public static function fromRedirect(RedirectContract $redirect): self
     {

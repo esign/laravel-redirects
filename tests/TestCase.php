@@ -5,7 +5,6 @@ namespace Esign\Redirects\Tests;
 use Esign\Redirects\Http\Middleware\CheckForRedirects;
 use Esign\Redirects\RedirectsServiceProvider;
 use Illuminate\Contracts\Http\Kernel;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 

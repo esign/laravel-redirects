@@ -4,6 +4,7 @@ namespace Esign\Redirects\Contracts;
 
 use Illuminate\Http\Request;
 
-interface RedirectorContract {
+interface RedirectorContract
+{
     public function getRedirectsForRequest(Request $request): array;
 }

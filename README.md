@@ -64,7 +64,7 @@ return [
 ```
 
 ## Usage
-Defining redirects in the database is pretty straight forward.
+Defining redirects in the database is pretty straight forward:
 ```php
 Redirect::create([
     'old_url' => 'my-old-url',
@@ -72,7 +72,7 @@ Redirect::create([
 ]);
 ```
 
-It's also possible to define route parameters just like the way you're used to in Laravel
+It's also possible to define route parameters just like the way you're used to in Laravel:
 ```php
 Redirect::create([
     'old_url' => 'my-old-url/{slug}',
@@ -104,6 +104,21 @@ It's also possible to redirect to external urls
 Redirect::create([
     'old_url' => 'my-old-url',
     'new_url' => 'https://www.esign.eu',
+]);
+```
+
+This package also allows you to define [constraints](https://laravel.com/docs/routing#parameters-regular-expression-constraints) for your routes:
+```php
+Redirect::create([
+    'old_url' => 'user/{id}',
+    'new_url' => 'users/{id}',
+    'constraints' => ['id' => '[0-9]+'],
+]);
+
+Redirect::create([
+    'old_url' => 'nl/{any?}',
+    'new_url' => 'nl-be/{any?}',
+    'constraints' => ['any' => '.*'],
 ]);
 ```
 

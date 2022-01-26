@@ -11,6 +11,7 @@ class CustomRedirectModel extends Model implements RedirectContract
     protected $table = 'redirects';
     protected $casts = [
         'status_code' => 'integer',
+        'constraints' => 'array',
     ];
 
     public function getOldUrl(): string
@@ -26,5 +27,10 @@ class CustomRedirectModel extends Model implements RedirectContract
     public function getStatusCode(): int
     {
         return $this->status_code;
+    }
+
+    public function getConstraints(): array
+    {
+        return $this->constraints ?? [];
     }
 }

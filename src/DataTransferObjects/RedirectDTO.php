@@ -11,6 +11,7 @@ class RedirectDTO
         public string $oldUrl,
         public string $newUrl,
         public int $statusCode = Response::HTTP_FOUND,
+        public array $constraints = [],
     ) {
     }
 
@@ -20,6 +21,7 @@ class RedirectDTO
             $redirect->getOldUrl(),
             $redirect->getNewUrl(),
             $redirect->getStatusCode(),
+            $redirect->getConstraints(),
         );
     }
 }

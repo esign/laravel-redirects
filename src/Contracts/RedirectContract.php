@@ -9,4 +9,6 @@ interface RedirectContract
     public function getNewUrl(): string;
 
     public function getStatusCode(): int;
+
+    public function getConstraints(): array;
 }

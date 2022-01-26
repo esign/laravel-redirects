@@ -70,6 +70,43 @@ class RedirectTest extends TestCase
     }
 
     /** @test */
+    public function it_can_apply_constraints()
+    {
+        Redirect::create([
+            'old_url' => 'user/{id}',
+            'new_url' => 'users/{id}',
+            'constraints' => ['id' => '[0-9]+'],
+        ]);
+
+        $this
+            ->get('user/1')
+            ->assertStatus(Response::HTTP_FOUND)
+            ->assertRedirect('users/1');
+
+        $this->get('user/john-doe')->assertNotFound();
+    }
+
+    /** @test */
+    public function it_can_apply_nullable_constraints()
+    {
+        Redirect::create([
+            'old_url' => 'nl/{any?}',
+            'new_url' => 'nl-be/{any?}',
+            'constraints' => ['any' => '.*'],
+        ]);
+
+        $this
+            ->get('nl')
+            ->assertStatus(Response::HTTP_FOUND)
+            ->assertRedirect('nl-be');
+
+        $this
+            ->get('nl/esign')
+            ->assertStatus(Response::HTTP_FOUND)
+            ->assertRedirect('nl-be/esign');
+    }
+
+    /** @test */
     public function it_wont_affect_existing_routes()
     {
         $this

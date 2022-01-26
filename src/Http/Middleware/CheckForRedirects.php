@@ -37,7 +37,7 @@ class CheckForRedirects
                 $redirectDTO->oldUrl,
                 $redirectDTO->newUrl,
                 $redirectDTO->statusCode,
-            );
+            )->where($redirectDTO->constraints);
         }
 
         return $router->dispatch($request);

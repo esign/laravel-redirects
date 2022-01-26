@@ -48,5 +48,7 @@
                 "Esign\\Redirects\\RedirectsServiceProvider"
             ]
         }
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

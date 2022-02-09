@@ -107,6 +107,21 @@ class RedirectTest extends TestCase
     }
 
     /** @test */
+    public function it_can_apply_constraints_matching_multiple_slashes()
+    {
+        Redirect::create([
+            'old_url' => 'nl/{any?}',
+            'new_url' => 'nl-be/{any?}',
+            'constraints' => ['any' => '.*'],
+        ]);
+
+        $this
+            ->get('nl/blog/my-blog-post')
+            ->assertStatus(Response::HTTP_FOUND)
+            ->assertRedirect('nl-be/blog/my-blog-post');
+    }
+
+    /** @test */
     public function it_wont_affect_existing_routes()
     {
         $this

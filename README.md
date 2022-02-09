@@ -122,6 +122,14 @@ Redirect::create([
 ]);
 ```
 
+This package also ships with a `DatabaseWildcardRedirector`, which allows you to define redirects by using `*` as a wildcard. This will automatically apply a constraint to match any trailing url segments:
+```php
+Redirect::create([
+    'old_url' => 'my-old-url/*',
+    'new_url' => 'my-new-url/*',
+]);
+```
+
 ## Testing
 
 ```bash

@@ -3,6 +3,7 @@
 namespace Esign\Redirects\Tests;
 
 use Esign\Redirects\Http\Middleware\CheckForRedirects;
+use Esign\Redirects\Http\Middleware\CheckForRedirectsIncludingQueryParameters;
 use Esign\Redirects\RedirectsServiceProvider;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Route;
@@ -24,7 +25,7 @@ abstract class TestCase extends BaseTestCase
 
     protected function getEnvironmentSetUp($app)
     {
-        $app->make(Kernel::class)->pushMiddleware(CheckForRedirects::class);
+        $app->make(Kernel::class)->pushMiddleware(CheckForRedirectsIncludingQueryParameters::class);
 
         $migration = include __DIR__ . '/../database/migrations/create_redirects_table.php.stub';
         $migration->up();

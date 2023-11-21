@@ -22,6 +22,28 @@ class RedirectTest extends TestCase
     }
 
     /** @test */
+    public function it_can_redirect_using_query_parameters()
+    {
+        Redirect::create(['old_url' => 'my-old-url?page=2', 'new_url' => 'my-new-url', 'constraints' => ['any' => '.*']]);
+
+        $this
+            ->get('my-old-url?page=2')
+            ->assertStatus(Response::HTTP_FOUND)
+            ->assertRedirect('my-new-url');
+    }
+
+    /** @test */
+    public function it_can_redirect_using_query_parameters_if_they_are_in_the_wrong_order()
+    {
+        Redirect::create(['old_url' => 'my-old-url?utm_source=website&page=2', 'new_url' => 'my-new-url', 'constraints' => ['any' => '.*']]);
+
+        $this
+            ->get('my-old-url?page=2')
+            ->assertStatus(Response::HTTP_FOUND)
+            ->assertRedirect('my-new-url');
+    }
+
+    /** @test */
     public function it_can_redirect_using_route_parameters()
     {
         Redirect::create(['old_url' => 'my-old-url/{slug}', 'new_url' => 'my-new-url/{slug}']);

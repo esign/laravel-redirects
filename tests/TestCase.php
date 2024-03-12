@@ -15,6 +15,7 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
 
         $this->setUpRoutes();
+        $this->setUpDatabase();
     }
 
     protected function getPackageProviders($app): array
@@ -25,14 +26,17 @@ abstract class TestCase extends BaseTestCase
     protected function getEnvironmentSetUp($app)
     {
         $app->make(Kernel::class)->pushMiddleware(CheckForRedirects::class);
-
-        $migration = include __DIR__ . '/../database/migrations/create_redirects_table.php.stub';
-        $migration->up();
     }
 
     protected function setUpRoutes(): void
     {
         Route::get('existing-url', fn () => 'existing url');
         Route::get('status-code/{code}', fn (int $code) => abort($code));
+    }
+
+    protected function setUpDatabase(): void
+    {
+        $migration = include __DIR__ . '/../database/migrations/create_redirects_table.php.stub';
+        $migration->up();
     }
 }

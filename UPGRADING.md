@@ -7,7 +7,7 @@ This package now has improved support for caching.
 
 ### Config changes
 The cache configuration is now specified under the `cache` key in the `redirects.php` config file.    
-You should update the your configuration file accordingly:
+In case you have published the configuration file, you should update it to reflect the following changes:
 
 ```diff
 return [

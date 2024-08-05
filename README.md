@@ -2,7 +2,7 @@
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/esign/laravel-redirects.svg?style=flat-square)](https://packagist.org/packages/esign/laravel-redirects)
 [![Total Downloads](https://img.shields.io/packagist/dt/esign/laravel-redirects.svg?style=flat-square)](https://packagist.org/packages/esign/laravel-redirects)
-[![Github Workflow Status](https://img.shields.io/github/workflow/status/esign/laravel-redirects/run-tests?label=tests)](https://github.com/esign/laravel-redirects/actions)
+![GitHub Actions](https://github.com/esign/laravel-redirects/actions/workflows/run-tests.yml/badge.svg)
 
 This package provides an easy way to load redirects from the database instead of defining them in your route files. By default the package will only load your redirects when the original request results in a 404.
 

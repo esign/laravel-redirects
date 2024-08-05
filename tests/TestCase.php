@@ -4,6 +4,7 @@ namespace Esign\Redirects\Tests;
 
 use Esign\Redirects\Http\Middleware\CheckForRedirects;
 use Esign\Redirects\RedirectsServiceProvider;
+use Esign\Redirects\Tests\Concerns\MakesQueryCountAssertions;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Route;
 use Orchestra\Testbench\TestCase as BaseTestCase;
@@ -15,7 +16,15 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
 
         $this->setUpRoutes();
-        $this->setUpDatabase();
+    }
+
+    protected function setUpTraits(): void
+    {
+        $uses = parent::setUpTraits();
+
+        if (isset($uses[MakesQueryCountAssertions::class])) {
+            $this->setUpMakesQueryCountAssertions();
+        }
     }
 
     protected function getPackageProviders($app): array
@@ -26,6 +35,7 @@ abstract class TestCase extends BaseTestCase
     protected function getEnvironmentSetUp($app)
     {
         $app->make(Kernel::class)->pushMiddleware(CheckForRedirects::class);
+        $this->setUpDatabase();
     }
 
     protected function setUpRoutes(): void

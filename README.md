@@ -20,24 +20,16 @@ For the redirects to be active you must register the `Esign\Redirects\Http\Middl
 
 **Laravel 11+**
 ```php
-// app/Http/Kernel.php
+// bootstrap/app.php
 
-return Application::configure(basePath: dirname(__DIR__))
-    ...
-    ->withMiddleware(function (Middleware $middleware) {
-        $middleware->web(
-            prepend: [
-                ...
-                Esign\Redirects\Http\Middleware\CheckForRedirects::class,
-            ],
-        );
-    })
-    })->create();
+->withMiddleware(function (Middleware $middleware) {
+     $middleware->append(Esign\Redirects\Http\Middleware\CheckForRedirects::class);
+})
 ```
 
 **Older versions (up to Laravel 10)**
 ```php
-// bootstrap/app.php
+// app/Http/Kernel.php
 
 protected $middleware = [
     ...

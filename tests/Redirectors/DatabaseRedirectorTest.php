@@ -2,53 +2,81 @@
 
 namespace Esign\Redirects\Tests\Redirectors;
 
-use Closure;
 use Esign\Redirects\Models\Redirect;
 use Esign\Redirects\Redirectors\DatabaseRedirector;
+use Esign\Redirects\RedirectsCache;
+use Esign\Redirects\Tests\Concerns\MakesQueryCountAssertions;
 use Esign\Redirects\Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Config;
 
 class DatabaseRedirectorTest extends TestCase
 {
     use RefreshDatabase;
+    use MakesQueryCountAssertions;
+
+    protected RedirectsCache $redirectsCache;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->redirectsCache = app(RedirectsCache::class);
+        $this->redirectsCache->forget();
+    }
 
     /** @test */
     public function it_can_cache_redirects()
     {
-        Redirect::create(['old_url' => 'my-old-url', 'new_url' => 'my-new-url']);
-        Cache::shouldReceive('remember')
-            ->once()
-            ->with('redirects', 15, Closure::class)
-            ->andReturn(Redirect::get());
+        // Request the redirects so the database redirects get queried and cached
+        // This causes the first database query
+        app(DatabaseRedirector::class)->getRedirectsForRequest(request());
 
-        (new DatabaseRedirector())->getRedirectsForRequest(request());
+        // Request the redirects so the database redirects get retrieved from the cache.
+        // This should not trigger a database query and leave the query count at 1.
+        app(DatabaseRedirector::class)->getRedirectsForRequest(request());
+
+        $this->assertQueryCount(1);
     }
 
     /** @test */
-    public function it_can_configure_the_cache_key()
+    public function it_can_clear_the_cache_when_updating_redirects()
     {
-        Redirect::create(['old_url' => 'my-old-url', 'new_url' => 'my-new-url']);
-        Config::set('redirects.cache_key', 'custom-redirects-key');
-        Cache::shouldReceive('remember')
-            ->once()
-            ->with('custom-redirects-key', 15, Closure::class)
-            ->andReturn(Redirect::get());
+        // Create the database redirect, which causes the first query.
+        $redirect = Redirect::create(['old_url' => 'my-old-url', 'new_url' => 'my-new-url']);
 
-        (new DatabaseRedirector())->getRedirectsForRequest(request());
+        // Request the redirects so the database redirects get queried and cached.
+        // This causes the second database query.
+        app(DatabaseRedirector::class)->getRedirectsForRequest(request());
+
+        // Create a new database redirects so the cache gets busted.
+        // This causes the third database query.
+        $redirect->update(['new_url' => 'my-updated-url']);
+
+        // Request the redirects so the database redirects get queried and cached once again.
+        // This causes the fourth database query.
+        app(DatabaseRedirector::class)->getRedirectsForRequest(request());
+
+        $this->assertQueryCount(4);
     }
 
     /** @test */
-    public function it_can_configure_the_cache_remember()
+    public function it_can_clear_the_cache_when_deleting_a_redirect()
     {
-        Redirect::create(['old_url' => 'my-old-url', 'new_url' => 'my-new-url']);
-        Config::set('redirects.cache_remember', 30);
-        Cache::shouldReceive('remember')
-            ->once()
-            ->with('redirects', 30, Closure::class)
-            ->andReturn(Redirect::get());
+        // Create the database redirects, which causes the first query.
+        $redirect = Redirect::create(['old_url' => 'my-old-url', 'new_url' => 'my-new-url']);
 
-        (new DatabaseRedirector())->getRedirectsForRequest(request());
+        // Request the redirects so the database redirects get queried and cached.
+        // This causes the second database query.
+        app(DatabaseRedirector::class)->getRedirectsForRequest(request());
+
+        // Delete the database redirects so the cache gets busted.
+        // This causes the third database query.
+        $redirect->delete();
+
+        // Request the redirects so the database redirects get queried and cached once again.
+        // This causes the fourth database query.
+        app(DatabaseRedirector::class)->getRedirectsForRequest(request());
+
+        $this->assertQueryCount(4);
     }
 }

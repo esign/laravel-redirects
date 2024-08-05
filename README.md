@@ -51,15 +51,24 @@ return [
      */
     'redirector' => Esign\Redirects\Redirectors\DatabaseRedirector::class,
 
-    /**
-     * The key that will be used to cache the redirects.
-     */
-    'cache_key' => 'redirects',
+    'cache' => [
+        /**
+         * The key that will be used to cache the redirects.
+         */
+        'key' => 'esign.laravel-redirects.redirects',
 
-    /**
-     * The amount of seconds the redirects will be cached for.
-     */
-    'cache_remember' => 15,
+        /**
+         * The duration for which database redirects will be cached.
+         */
+        'ttl' => \DateInterval::createFromDateString('24 hours'),
+
+        /**
+         * The cache store to be used for database redirects.
+         * Use null to utilize the default cache store from the cache.php config file.
+         * To disable caching, you can use the 'array' store.
+         */
+        'store' => null,
+    ],
 ];
 ```
 
@@ -128,6 +137,18 @@ Redirect::create([
     'old_url' => 'my-old-url/*',
     'new_url' => 'my-new-url/*',
 ]);
+```
+
+### Caching redirects
+By default, this package ensures efficient performance by caching your database redirects for 24 hours. This caching mechanism uses the default cache driver that you have configured within your Laravel application.
+
+If you wish to modify the cache duration or switch to a different cache store, please refer to the cache settings within the [configuration file](/config/redirects.php).
+
+### Clearing the redirects cache
+The redirects cache is automatically maintained when you interact with the `Esign\Redirects\Models\Redirect` model.
+However, if you make changes outside of these operations, you need to manually clear the cache:
+```bash
+php artisan redirects:clear-cache
 ```
 
 ## Testing

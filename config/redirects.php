@@ -13,13 +13,22 @@ return [
      */
     'redirector' => Esign\Redirects\Redirectors\DatabaseRedirector::class,
 
-    /**
-     * The key that will be used to cache the redirects.
-     */
-    'cache_key' => 'redirects',
+    'cache' => [
+        /**
+         * The key that will be used to cache the redirects.
+         */
+        'key' => 'esign.laravel-redirects.redirects',
 
-    /**
-     * The amount of seconds the redirects will be cached for.
-     */
-    'cache_remember' => 15,
+        /**
+         * The duration for which database redirects will be cached.
+         */
+        'ttl' => \DateInterval::createFromDateString('24 hours'),
+
+        /**
+         * The cache store to be used for database redirects.
+         * Use null to utilize the default cache store from the cache.php config file.
+         * To disable caching, you can use the 'array' store.
+         */
+        'store' => null,
+    ],
 ];

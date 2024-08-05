@@ -3,6 +3,7 @@
 namespace Esign\Redirects\Models;
 
 use Esign\Redirects\Contracts\RedirectContract;
+use Esign\Redirects\RedirectsCache;
 use Illuminate\Database\Eloquent\Model;
 
 class Redirect extends Model implements RedirectContract
@@ -12,6 +13,12 @@ class Redirect extends Model implements RedirectContract
         'status_code' => 'integer',
         'constraints' => 'array',
     ];
+
+    protected static function booted(): void
+    {
+        static::saved(fn () => app(RedirectsCache::class)->forget());
+        static::deleted(fn () => app(RedirectsCache::class)->forget());
+    }
 
     public function getOldUrl(): string
     {

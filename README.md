@@ -17,8 +17,27 @@ composer require esign/laravel-redirects
 The package will automatically register a service provider.
 
 For the redirects to be active you must register the `Esign\Redirects\Http\Middleware\CheckForRedirects` middleware.
+
+**Laravel 11+**
 ```php
 // app/Http/Kernel.php
+
+return Application::configure(basePath: dirname(__DIR__))
+    ...
+    ->withMiddleware(function (Middleware $middleware) {
+        $middleware->web(
+            prepend: [
+                ...
+                Esign\Redirects\Http\Middleware\CheckForRedirects::class,
+            ],
+        );
+    })
+    })->create();
+```
+
+**Older versions (up to Laravel 10)**
+```php
+// bootstrap/app.php
 
 protected $middleware = [
     ...

@@ -2,6 +2,7 @@
 
 namespace Esign\Redirects\Tests;
 
+use PHPUnit\Framework\Attributes\Test;
 use Esign\Redirects\Models\Redirect;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
@@ -10,7 +11,7 @@ class RedirectTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_can_redirect_using_plain_urls()
     {
         Redirect::create(['old_url' => 'my-old-url', 'new_url' => 'my-new-url']);
@@ -21,7 +22,7 @@ class RedirectTest extends TestCase
             ->assertRedirect('my-new-url');
     }
 
-    /** @test */
+    #[Test]
     public function it_can_redirect_using_route_parameters()
     {
         Redirect::create(['old_url' => 'my-old-url/{slug}', 'new_url' => 'my-new-url/{slug}']);
@@ -32,7 +33,7 @@ class RedirectTest extends TestCase
             ->assertRedirect('my-new-url/abc');
     }
 
-    /** @test */
+    #[Test]
     public function it_can_redirect_using_multiple_route_parameters()
     {
         Redirect::create(['old_url' => 'my-old-url/{slug}/{year}', 'new_url' => 'my-new-url/{year}/{slug}']);
@@ -43,7 +44,7 @@ class RedirectTest extends TestCase
             ->assertRedirect('my-new-url/2020/abc');
     }
 
-    /** @test */
+    #[Test]
     public function it_can_redirect_to_external_urls()
     {
         Redirect::create(['old_url' => 'my-old-url', 'new_url' => 'https://www.example.com']);
@@ -54,7 +55,7 @@ class RedirectTest extends TestCase
             ->assertRedirect('https://www.example.com');
     }
 
-    /** @test */
+    #[Test]
     public function it_can_redirect_using_a_custom_status_code()
     {
         Redirect::create([
@@ -69,7 +70,7 @@ class RedirectTest extends TestCase
             ->assertRedirect('my-new-url');
     }
 
-    /** @test */
+    #[Test]
     public function it_can_apply_constraints()
     {
         Redirect::create([
@@ -86,7 +87,7 @@ class RedirectTest extends TestCase
         $this->get('user/john-doe')->assertNotFound();
     }
 
-    /** @test */
+    #[Test]
     public function it_can_apply_nullable_constraints()
     {
         Redirect::create([
@@ -106,7 +107,7 @@ class RedirectTest extends TestCase
             ->assertRedirect('nl-be/esign');
     }
 
-    /** @test */
+    #[Test]
     public function it_can_apply_constraints_matching_multiple_slashes()
     {
         Redirect::create([
@@ -121,7 +122,7 @@ class RedirectTest extends TestCase
             ->assertRedirect('nl-be/blog/my-blog-post');
     }
 
-    /** @test */
+    #[Test]
     public function it_wont_affect_existing_routes()
     {
         $this
@@ -130,7 +131,7 @@ class RedirectTest extends TestCase
             ->assertSee('existing url');
     }
 
-    /** @test */
+    #[Test]
     public function it_will_only_redirect_a_404_status()
     {
         $this

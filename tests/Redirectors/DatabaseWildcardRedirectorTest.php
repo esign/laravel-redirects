@@ -2,6 +2,7 @@
 
 namespace Esign\Redirects\Tests\Redirectors;
 
+use PHPUnit\Framework\Attributes\Test;
 use Esign\Redirects\Contracts\RedirectorContract;
 use Esign\Redirects\Models\Redirect;
 use Esign\Redirects\Redirectors\DatabaseWildcardRedirector;
@@ -20,7 +21,7 @@ class DatabaseWildcardRedirectorTest extends TestCase
         $app->bind(RedirectorContract::class, DatabaseWildcardRedirector::class);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_use_wildcards()
     {
         Redirect::create([
@@ -34,7 +35,7 @@ class DatabaseWildcardRedirectorTest extends TestCase
             ->assertRedirect('nl-be/blog/my-blog-post');
     }
 
-    /** @test */
+    #[Test]
     public function it_can_mix_parameters_and_wilcards()
     {
         Redirect::create([
@@ -48,7 +49,7 @@ class DatabaseWildcardRedirectorTest extends TestCase
             ->assertRedirect('nl-be/2020/my-blog-post');
     }
 
-    /** @test */
+    #[Test]
     public function it_can_use_a_suffix_after_a_wildcard()
     {
         Redirect::create([

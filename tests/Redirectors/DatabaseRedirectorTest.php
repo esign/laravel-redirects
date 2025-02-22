@@ -2,6 +2,7 @@
 
 namespace Esign\Redirects\Tests\Redirectors;
 
+use PHPUnit\Framework\Attributes\Test;
 use Esign\Redirects\Models\Redirect;
 use Esign\Redirects\Redirectors\DatabaseRedirector;
 use Esign\Redirects\RedirectsCache;
@@ -24,7 +25,7 @@ class DatabaseRedirectorTest extends TestCase
         $this->redirectsCache->forget();
     }
 
-    /** @test */
+    #[Test]
     public function it_can_cache_redirects()
     {
         // Request the redirects so the database redirects get queried and cached
@@ -38,7 +39,7 @@ class DatabaseRedirectorTest extends TestCase
         $this->assertQueryCount(1);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_clear_the_cache_when_updating_redirects()
     {
         // Create the database redirect, which causes the first query.
@@ -59,7 +60,7 @@ class DatabaseRedirectorTest extends TestCase
         $this->assertQueryCount(4);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_clear_the_cache_when_deleting_a_redirect()
     {
         // Create the database redirects, which causes the first query.

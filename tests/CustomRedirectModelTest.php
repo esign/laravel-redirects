@@ -2,6 +2,7 @@
 
 namespace Esign\Redirects\Tests;
 
+use PHPUnit\Framework\Attributes\Test;
 use Esign\Redirects\Exceptions\InvalidConfiguration;
 use Esign\Redirects\RedirectsServiceProvider;
 use Esign\Redirects\Tests\Models\CustomRedirectModel;
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\Config;
 
 class CustomRedirectModelTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function it_can_redirect_using_a_custom_model()
     {
         Config::set('redirects.redirect_model', CustomRedirectModel::class);
@@ -21,7 +22,7 @@ class CustomRedirectModelTest extends TestCase
             ->assertRedirect('my-new-url');
     }
 
-    /** @test */
+    #[Test]
     public function it_will_throw_an_exception_when_the_model_does_not_implement_the_redirect_contract()
     {
         Config::set('redirects.redirect_model', InvalidRedirectModel::class);

@@ -2,6 +2,7 @@
 
 namespace Esign\Redirects\Tests;
 
+use PHPUnit\Framework\Attributes\Test;
 use Esign\Redirects\DataTransferObjects\RedirectDTO;
 use Esign\Redirects\Models\Redirect;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -11,7 +12,7 @@ class RedirectDTOTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_can_create_from_a_redirect()
     {
         $redirect = Redirect::create([

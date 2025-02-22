@@ -2,17 +2,18 @@
 
 namespace Esign\Redirects\Tests\Feature\Commands;
 
+use PHPUnit\Framework\Attributes\Test;
 use Esign\Redirects\Commands\ClearRedirectsCacheCommand;
 use Esign\Redirects\Redirectors\DatabaseRedirector;
 use Esign\Redirects\Tests\Concerns\MakesQueryCountAssertions;
 use Esign\Redirects\Tests\TestCase;
 
-class ClearRedirectsCacheCommandTest extends TestCase
+final class ClearRedirectsCacheCommandTest extends TestCase
 {
     use MakesQueryCountAssertions;
 
-    /** @test */
-    public function it_can_clear_the_redirects_cache()
+    #[Test]
+    public function it_can_clear_the_redirects_cache(): void
     {
         // Request the redirects so the database redirects get queried and cached.
         // This causes the first database query.

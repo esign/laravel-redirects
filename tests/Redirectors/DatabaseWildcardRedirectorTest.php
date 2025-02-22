@@ -2,6 +2,7 @@
 
 namespace Esign\Redirects\Tests\Redirectors;
 
+use PHPUnit\Framework\Attributes\Test;
 use Esign\Redirects\Contracts\RedirectorContract;
 use Esign\Redirects\Models\Redirect;
 use Esign\Redirects\Redirectors\DatabaseWildcardRedirector;
@@ -9,7 +10,7 @@ use Esign\Redirects\Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 
-class DatabaseWildcardRedirectorTest extends TestCase
+final class DatabaseWildcardRedirectorTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -20,8 +21,8 @@ class DatabaseWildcardRedirectorTest extends TestCase
         $app->bind(RedirectorContract::class, DatabaseWildcardRedirector::class);
     }
 
-    /** @test */
-    public function it_can_use_wildcards()
+    #[Test]
+    public function it_can_use_wildcards(): void
     {
         Redirect::create([
             'old_url' => 'nl/*',
@@ -34,8 +35,8 @@ class DatabaseWildcardRedirectorTest extends TestCase
             ->assertRedirect('nl-be/blog/my-blog-post');
     }
 
-    /** @test */
-    public function it_can_mix_parameters_and_wilcards()
+    #[Test]
+    public function it_can_mix_parameters_and_wilcards(): void
     {
         Redirect::create([
             'old_url' => 'nl/{year}/*',
@@ -48,8 +49,8 @@ class DatabaseWildcardRedirectorTest extends TestCase
             ->assertRedirect('nl-be/2020/my-blog-post');
     }
 
-    /** @test */
-    public function it_can_use_a_suffix_after_a_wildcard()
+    #[Test]
+    public function it_can_use_a_suffix_after_a_wildcard(): void
     {
         Redirect::create([
             'old_url' => 'nl/*/my-old-url',

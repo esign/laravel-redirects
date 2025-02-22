@@ -13,7 +13,7 @@ class ClearRedirectsCacheCommandTest extends TestCase
     use MakesQueryCountAssertions;
 
     #[Test]
-    public function it_can_clear_the_redirects_cache()
+    public function it_can_clear_the_redirects_cache(): void
     {
         // Request the redirects so the database redirects get queried and cached.
         // This causes the first database query.

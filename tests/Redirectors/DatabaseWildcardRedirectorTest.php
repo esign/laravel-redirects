@@ -22,7 +22,7 @@ class DatabaseWildcardRedirectorTest extends TestCase
     }
 
     #[Test]
-    public function it_can_use_wildcards()
+    public function it_can_use_wildcards(): void
     {
         Redirect::create([
             'old_url' => 'nl/*',
@@ -36,7 +36,7 @@ class DatabaseWildcardRedirectorTest extends TestCase
     }
 
     #[Test]
-    public function it_can_mix_parameters_and_wilcards()
+    public function it_can_mix_parameters_and_wilcards(): void
     {
         Redirect::create([
             'old_url' => 'nl/{year}/*',
@@ -50,7 +50,7 @@ class DatabaseWildcardRedirectorTest extends TestCase
     }
 
     #[Test]
-    public function it_can_use_a_suffix_after_a_wildcard()
+    public function it_can_use_a_suffix_after_a_wildcard(): void
     {
         Redirect::create([
             'old_url' => 'nl/*/my-old-url',

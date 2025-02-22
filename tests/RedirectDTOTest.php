@@ -13,7 +13,7 @@ class RedirectDTOTest extends TestCase
     use RefreshDatabase;
 
     #[Test]
-    public function it_can_create_from_a_redirect()
+    public function it_can_create_from_a_redirect(): void
     {
         $redirect = Redirect::create([
             'old_url' => 'my-old-url',

@@ -26,7 +26,7 @@ class DatabaseRedirectorTest extends TestCase
     }
 
     #[Test]
-    public function it_can_cache_redirects()
+    public function it_can_cache_redirects(): void
     {
         // Request the redirects so the database redirects get queried and cached
         // This causes the first database query
@@ -40,7 +40,7 @@ class DatabaseRedirectorTest extends TestCase
     }
 
     #[Test]
-    public function it_can_clear_the_cache_when_updating_redirects()
+    public function it_can_clear_the_cache_when_updating_redirects(): void
     {
         // Create the database redirect, which causes the first query.
         $redirect = Redirect::create(['old_url' => 'my-old-url', 'new_url' => 'my-new-url']);
@@ -61,7 +61,7 @@ class DatabaseRedirectorTest extends TestCase
     }
 
     #[Test]
-    public function it_can_clear_the_cache_when_deleting_a_redirect()
+    public function it_can_clear_the_cache_when_deleting_a_redirect(): void
     {
         // Create the database redirects, which causes the first query.
         $redirect = Redirect::create(['old_url' => 'my-old-url', 'new_url' => 'my-new-url']);

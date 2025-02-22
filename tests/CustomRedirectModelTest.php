@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Config;
 class CustomRedirectModelTest extends TestCase
 {
     #[Test]
-    public function it_can_redirect_using_a_custom_model()
+    public function it_can_redirect_using_a_custom_model(): void
     {
         Config::set('redirects.redirect_model', CustomRedirectModel::class);
         CustomRedirectModel::create(['old_url' => 'my-old-url', 'new_url' => 'my-new-url']);
@@ -23,7 +23,7 @@ class CustomRedirectModelTest extends TestCase
     }
 
     #[Test]
-    public function it_will_throw_an_exception_when_the_model_does_not_implement_the_redirect_contract()
+    public function it_will_throw_an_exception_when_the_model_does_not_implement_the_redirect_contract(): void
     {
         Config::set('redirects.redirect_model', InvalidRedirectModel::class);
         $this->expectException(InvalidConfiguration::class);

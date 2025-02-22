@@ -12,7 +12,7 @@ class RedirectTest extends TestCase
     use RefreshDatabase;
 
     #[Test]
-    public function it_can_redirect_using_plain_urls()
+    public function it_can_redirect_using_plain_urls(): void
     {
         Redirect::create(['old_url' => 'my-old-url', 'new_url' => 'my-new-url']);
 
@@ -23,7 +23,7 @@ class RedirectTest extends TestCase
     }
 
     #[Test]
-    public function it_can_redirect_using_route_parameters()
+    public function it_can_redirect_using_route_parameters(): void
     {
         Redirect::create(['old_url' => 'my-old-url/{slug}', 'new_url' => 'my-new-url/{slug}']);
 
@@ -34,7 +34,7 @@ class RedirectTest extends TestCase
     }
 
     #[Test]
-    public function it_can_redirect_using_multiple_route_parameters()
+    public function it_can_redirect_using_multiple_route_parameters(): void
     {
         Redirect::create(['old_url' => 'my-old-url/{slug}/{year}', 'new_url' => 'my-new-url/{year}/{slug}']);
 
@@ -45,7 +45,7 @@ class RedirectTest extends TestCase
     }
 
     #[Test]
-    public function it_can_redirect_to_external_urls()
+    public function it_can_redirect_to_external_urls(): void
     {
         Redirect::create(['old_url' => 'my-old-url', 'new_url' => 'https://www.example.com']);
 
@@ -56,7 +56,7 @@ class RedirectTest extends TestCase
     }
 
     #[Test]
-    public function it_can_redirect_using_a_custom_status_code()
+    public function it_can_redirect_using_a_custom_status_code(): void
     {
         Redirect::create([
             'old_url' => 'my-old-url',
@@ -71,7 +71,7 @@ class RedirectTest extends TestCase
     }
 
     #[Test]
-    public function it_can_apply_constraints()
+    public function it_can_apply_constraints(): void
     {
         Redirect::create([
             'old_url' => 'user/{id}',
@@ -88,7 +88,7 @@ class RedirectTest extends TestCase
     }
 
     #[Test]
-    public function it_can_apply_nullable_constraints()
+    public function it_can_apply_nullable_constraints(): void
     {
         Redirect::create([
             'old_url' => 'nl/{any?}',
@@ -108,7 +108,7 @@ class RedirectTest extends TestCase
     }
 
     #[Test]
-    public function it_can_apply_constraints_matching_multiple_slashes()
+    public function it_can_apply_constraints_matching_multiple_slashes(): void
     {
         Redirect::create([
             'old_url' => 'nl/{any?}',
@@ -123,7 +123,7 @@ class RedirectTest extends TestCase
     }
 
     #[Test]
-    public function it_wont_affect_existing_routes()
+    public function it_wont_affect_existing_routes(): void
     {
         $this
             ->get('existing-url')
@@ -132,7 +132,7 @@ class RedirectTest extends TestCase
     }
 
     #[Test]
-    public function it_will_only_redirect_a_404_status()
+    public function it_will_only_redirect_a_404_status(): void
     {
         $this
             ->get('status-code/418')

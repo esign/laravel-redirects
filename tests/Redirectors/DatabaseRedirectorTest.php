@@ -10,7 +10,7 @@ use Esign\Redirects\Tests\Concerns\MakesQueryCountAssertions;
 use Esign\Redirects\Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-class DatabaseRedirectorTest extends TestCase
+final class DatabaseRedirectorTest extends TestCase
 {
     use RefreshDatabase;
     use MakesQueryCountAssertions;

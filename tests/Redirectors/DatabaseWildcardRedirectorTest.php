@@ -10,7 +10,7 @@ use Esign\Redirects\Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 
-class DatabaseWildcardRedirectorTest extends TestCase
+final class DatabaseWildcardRedirectorTest extends TestCase
 {
     use RefreshDatabase;
 

@@ -9,7 +9,7 @@ use Esign\Redirects\Tests\Models\CustomRedirectModel;
 use Esign\Redirects\Tests\Models\InvalidRedirectModel;
 use Illuminate\Support\Facades\Config;
 
-class CustomRedirectModelTest extends TestCase
+final class CustomRedirectModelTest extends TestCase
 {
     #[Test]
     public function it_can_redirect_using_a_custom_model(): void

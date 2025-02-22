@@ -8,7 +8,7 @@ use Esign\Redirects\Redirectors\DatabaseRedirector;
 use Esign\Redirects\Tests\Concerns\MakesQueryCountAssertions;
 use Esign\Redirects\Tests\TestCase;
 
-class ClearRedirectsCacheCommandTest extends TestCase
+final class ClearRedirectsCacheCommandTest extends TestCase
 {
     use MakesQueryCountAssertions;
 

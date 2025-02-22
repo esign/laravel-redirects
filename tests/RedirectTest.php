@@ -7,7 +7,7 @@ use Esign\Redirects\Models\Redirect;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 
-class RedirectTest extends TestCase
+final class RedirectTest extends TestCase
 {
     use RefreshDatabase;
 

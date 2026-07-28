@@ -9,6 +9,7 @@ use Esign\Redirects\RedirectsCache;
 use Esign\Redirects\Tests\Concerns\MakesQueryCountAssertions;
 use Esign\Redirects\Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Response;
 
 final class DatabaseRedirectorTest extends TestCase
 {
@@ -79,5 +80,21 @@ final class DatabaseRedirectorTest extends TestCase
         app(DatabaseRedirector::class)->getRedirectsForRequest(request());
 
         $this->assertQueryCount(4);
+    }
+
+    #[Test]
+    public function it_can_restore_redirects_from_old_cached_eloquent_collections(): void
+    {
+        Redirect::create(['old_url' => 'my-old-url', 'new_url' => 'my-new-url', 'status_code' => Response::HTTP_MOVED_PERMANENTLY]);
+
+        // Simulate an old cache entry containing a full Eloquent Collection
+        $this->redirectsCache->remember(fn () => Redirect::get());
+
+        $redirects = app(DatabaseRedirector::class)->getRedirectsForRequest(request());
+
+        $this->assertCount(1, $redirects);
+        $this->assertSame('my-old-url', $redirects[0]->oldUrl);
+        $this->assertSame('my-new-url', $redirects[0]->newUrl);
+        $this->assertSame(Response::HTTP_MOVED_PERMANENTLY, $redirects[0]->statusCode);
     }
 }

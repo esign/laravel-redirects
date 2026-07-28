@@ -18,10 +18,33 @@ class DatabaseRedirector implements RedirectorContract
     public function getRedirectsForRequest(Request $request): array
     {
         $redirectModel = RedirectsServiceProvider::getRedirectModel();
-        $redirects = $this->redirectsCache->remember(fn () => $redirectModel::get());
+        $cached = $this->redirectsCache->remember(fn () =>
+            $redirectModel::get()->map(fn (RedirectContract $redirect) => [
+                'old_url'     => $redirect->getOldUrl(),
+                'new_url'     => $redirect->getNewUrl(),
+                'status_code' => $redirect->getStatusCode(),
+                'constraints' => $redirect->getConstraints(),
+            ])->values()->all()
+        );
 
-        return $redirects->map(function (RedirectContract $redirect) {
-            return RedirectDTO::fromRedirect($redirect);
-        })->toArray();
+        // Handle backward compatibility: old cache entries may contain an Eloquent Collection.
+        if (! is_array($cached)) {
+            $cached = $cached->map(fn (RedirectContract $redirect) => [
+                'old_url'     => $redirect->getOldUrl(),
+                'new_url'     => $redirect->getNewUrl(),
+                'status_code' => $redirect->getStatusCode(),
+                'constraints' => $redirect->getConstraints(),
+            ])->values()->all();
+        }
+
+        return array_map(
+            fn (array $item) => new RedirectDTO(
+                $item['old_url'],
+                $item['new_url'],
+                $item['status_code'],
+                $item['constraints'],
+            ),
+            $cached
+        );
     }
 }

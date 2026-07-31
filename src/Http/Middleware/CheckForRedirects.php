@@ -34,9 +34,7 @@ class CheckForRedirects
         $redirects = app(RedirectorContract::class)->getRedirectsForRequest($request);
         $router = new Router(app(Dispatcher::class), app(Container::class));
 
-        usort($redirects, fn ($a, $b) => $this->compareRedirects($a, $b));
-
-        foreach ($redirects as $redirectDTO) {
+        foreach ($this->sortRedirects($redirects) as $redirectDTO) {
             $router->redirect(
                 $redirectDTO->oldUrl,
                 $redirectDTO->newUrl,
@@ -47,28 +45,27 @@ class CheckForRedirects
         return $router->dispatch($request);
     }
 
-    protected function compareRedirects(RedirectDTO $a, RedirectDTO $b): int
+    /** @param RedirectDTO[] $redirects */
+    protected function sortRedirects(array $redirects): array
     {
-        // Greedy wildcards (constraints containing .*) are the least specific — always last
-        $aGreedy = in_array('.*', $a->constraints) ? 1 : 0;
-        $bGreedy = in_array('.*', $b->constraints) ? 1 : 0;
+        // Pre-compute sort keys once per redirect (n) rather than on every
+        // comparison (n log n) to keep the sort efficient for large datasets.
+        $keys = array_map(fn (RedirectDTO $dto) => [
+            in_array('.*', $dto->constraints) ? 1 : 0,  // greedy wildcards last
+            substr_count($dto->oldUrl, '{'),              // fewer params first
+            -count(array_filter(                          // more literal segments first
+                explode('/', $dto->oldUrl),
+                fn (string $segment) => ! str_contains($segment, '{'),
+            )),
+        ], $redirects);
 
-        if ($aGreedy !== $bGreedy) {
-            return $aGreedy <=> $bGreedy;
-        }
+        array_multisort(
+            array_column($keys, 0), SORT_ASC,
+            array_column($keys, 1), SORT_ASC,
+            array_column($keys, 2), SORT_ASC,
+            $redirects,
+        );
 
-        // Fewer parameters = more specific = first
-        $aParams = substr_count($a->oldUrl, '{');
-        $bParams = substr_count($b->oldUrl, '{');
-
-        if ($aParams !== $bParams) {
-            return $aParams <=> $bParams;
-        }
-
-        // Tie-break: more literal segments = more specific = first
-        $aLiterals = count(array_filter(explode('/', $a->oldUrl), fn ($s) => ! str_contains($s, '{')));
-        $bLiterals = count(array_filter(explode('/', $b->oldUrl), fn ($s) => ! str_contains($s, '{')));
-
-        return $bLiterals <=> $aLiterals;
+        return $redirects;
     }
 }

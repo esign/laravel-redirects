@@ -27,14 +27,12 @@ class DatabaseRedirector implements RedirectorContract
             ])->values()->all()
         );
 
-        // Handle backward compatibility: old cache entries may contain an Eloquent Collection.
+        // If the cache contains a stale Eloquent Collection (cached before this change),
+        // bust it and re-fetch so we always work with plain arrays.
         if (! is_array($cached)) {
-            $cached = $cached->map(fn (RedirectContract $redirect) => [
-                'old_url'     => $redirect->getOldUrl(),
-                'new_url'     => $redirect->getNewUrl(),
-                'status_code' => $redirect->getStatusCode(),
-                'constraints' => $redirect->getConstraints(),
-            ])->values()->all();
+            $this->redirectsCache->forget();
+
+            return $this->getRedirectsForRequest($request);
         }
 
         return array_map(

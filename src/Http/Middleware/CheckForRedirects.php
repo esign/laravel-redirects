@@ -48,12 +48,15 @@ class CheckForRedirects
     /** @param RedirectDTO[] $redirects */
     protected function sortRedirects(array $redirects): array
     {
-        // Pre-compute sort keys once per redirect (n) rather than on every
-        // comparison (n log n) to keep the sort efficient for large datasets.
+        // Pre-compute sort keys per redirect so string operations are not repeated
+        // on every comparison, keeping the sort efficient for large redirect sets.
         $keys = array_map(fn (RedirectDTO $dto) => [
-            in_array('.*', $dto->constraints) ? 1 : 0,  // greedy wildcards last
-            substr_count($dto->oldUrl, '{'),              // fewer params first
-            -count(array_filter(                          // more literal segments first
+            // Greedy wildcards (.*) are least specific — always last
+            in_array('.*', $dto->constraints) ? 1 : 0,
+            // Fewer parameters = more specific = first
+            substr_count($dto->oldUrl, '{'),
+            // More literal segments = more specific = first
+            -count(array_filter(
                 explode('/', $dto->oldUrl),
                 fn (string $segment) => ! str_contains($segment, '{'),
             )),

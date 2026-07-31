@@ -159,6 +159,17 @@ function hydrateApproach(SerializingStore $store): array
         ->toArray();
 }
 
+/**
+ * DTO approach: caches an array of RedirectDTO objects directly.
+ * No reconstruction needed on read — DTOs come straight out of the cache.
+ */
+function dtoApproach(SerializingStore $store): array
+{
+    return rememberOnStore($store, 'redirects', fn () =>
+        Redirect::get()->map(fn (Redirect $r) => RedirectDTO::fromRedirect($r))->values()->all()
+    );
+}
+
 function cacheSize(SerializingStore $store, string $key): int
 {
     return $store->rawSize($key);
@@ -186,20 +197,13 @@ function inMemorySize(mixed $value): int
 $iterations = 200;
 $counts     = [10, 100, 500, 1000, 10000];
 
-echo str_repeat('─', 110) . PHP_EOL;
+echo str_repeat('─', 120) . PHP_EOL;
 printf(
-    "%-8s %-14s %-14s %-14s %-14s %-14s %-14s %-14s\n",
-    'Count',
-    'Old speed',
-    'Hydrate speed',
-    'New speed',
-    'Hydrate vs old',
-    'New vs old',
-    'Old size',
-    'Hydrate size',
-    'New size',
+    "%-8s %-12s %-12s %-12s %-12s %-12s %-14s %-14s %-14s\n",
+    'Count', 'Old', 'Hydrate', 'Plain arr', 'DTO',
+    'Best vs old', 'Old size', 'Plain arr size', 'DTO size',
 );
-echo str_repeat('─', 110) . PHP_EOL;
+echo str_repeat('─', 120) . PHP_EOL;
 
 foreach ($counts as $count) {
     seedRedirects($count);
@@ -207,97 +211,51 @@ foreach ($counts as $count) {
     $oldStore     = makeStore();
     $hydrateStore = makeStore();
     $newStore     = makeStore();
+    $dtoStore     = makeStore();
 
-    // Prime all stores (cold hit — writes to serialized storage)
     oldApproach($oldStore);
     hydrateApproach($hydrateStore);
     newApproach($newStore);
+    dtoApproach($dtoStore);
 
     $results = Benchmark::measure([
         'old'     => fn () => oldApproach($oldStore),
         'hydrate' => fn () => hydrateApproach($hydrateStore),
         'new'     => fn () => newApproach($newStore),
+        'dto'     => fn () => dtoApproach($dtoStore),
     ], $iterations);
 
     $oldMs     = $results['old'];
     $hydrateMs = $results['hydrate'];
     $newMs     = $results['new'];
-
-    $oldBytes     = cacheSize($oldStore, 'redirects');
-    $hydrateBytes = cacheSize($hydrateStore, 'redirects');
-    $newBytes     = cacheSize($newStore, 'redirects');
+    $dtoMs     = $results['dto'];
+    $bestMs    = min($newMs, $dtoMs);
 
     printf(
-        "%-8d %-14s %-14s %-14s %-14s %-14s %-14s %-14s\n",
+        "%-8d %-12s %-12s %-12s %-12s %-12s %-14s %-14s %-14s\n",
         $count,
         round($oldMs, 4) . ' ms',
         round($hydrateMs, 4) . ' ms',
         round($newMs, 4) . ' ms',
-        round($oldMs / $hydrateMs, 2) . '×',
-        round($oldMs / $newMs, 2) . '×',
-        number_format($oldBytes) . ' B',
-        number_format($hydrateBytes) . ' B',
-        number_format($newBytes) . ' B',
+        round($dtoMs, 4) . ' ms',
+        round($oldMs / $bestMs, 2) . '×',
+        number_format(cacheSize($oldStore, 'redirects')) . ' B',
+        number_format(cacheSize($newStore, 'redirects')) . ' B',
+        number_format(cacheSize($dtoStore, 'redirects')) . ' B',
     );
 }
 
-echo str_repeat('─', 110) . PHP_EOL;
+echo str_repeat('─', 120) . PHP_EOL;
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Memory breakdown (single run, 1000 redirects)
+// Write speed (serialisation only, no DB query)
 // ──────────────────────────────────────────────────────────────────────────────
 
-echo PHP_EOL . '── Memory & payload size (1000 redirects, warm cache) ───────────────────────────' . PHP_EOL;
+echo PHP_EOL . '── Write speed (serialisation only, warm DB, N=' . $iterations . ') ──────────────────────────────' . PHP_EOL;
+printf("%-8s %-16s %-16s %-16s %-16s\n", 'Count', 'Old', 'Hydrate', 'Plain arr', 'DTO');
+echo str_repeat('─', 70) . PHP_EOL;
 
-seedRedirects(1000);
-$oldStoreMem     = makeStore();
-$hydrateStoreMem = makeStore();
-$newStoreMem     = makeStore();
-$oldResult     = oldApproach($oldStoreMem);
-$hydrateResult = hydrateApproach($hydrateStoreMem);
-$newResult     = newApproach($newStoreMem);
-
-$oldMem     = memoryDelta(fn () => oldApproach($oldStoreMem));
-$hydrateMem = memoryDelta(fn () => hydrateApproach($hydrateStoreMem));
-$newMem     = memoryDelta(fn () => newApproach($newStoreMem));
-
-printf("Old approach memory delta:      %s KB\n", number_format($oldMem / 1024, 2));
-printf("Hydrate approach memory delta:  %s KB\n", number_format($hydrateMem / 1024, 2));
-printf("New approach memory delta:      %s KB\n", number_format($newMem / 1024, 2));
-printf("Old result serialised size:     %s B\n",  number_format(inMemorySize($oldResult)));
-printf("Hydrate result serialised size: %s B\n",  number_format(inMemorySize($hydrateResult)));
-printf("New result serialised size:     %s B\n",  number_format(inMemorySize($newResult)));
-
-// ──────────────────────────────────────────────────────────────────────────────
-// Cold-cache benchmark (includes DB query + serialisation cost)
-// ──────────────────────────────────────────────────────────────────────────────
-
-echo PHP_EOL . '── Cold-cache speed (10 iterations, 500 redirects) ────────────────────────────' . PHP_EOL;
-
-seedRedirects(500);
-
-$coldResults = Benchmark::measure([
-    'old (cold)'     => fn () => oldApproach(makeStore()),
-    'hydrate (cold)' => fn () => hydrateApproach(makeStore()),
-    'new (cold)'     => fn () => newApproach(makeStore()),
-], 10);
-
-printf("Old cold-cache:     %s ms/iter\n", round($coldResults['old (cold)'], 4));
-printf("Hydrate cold-cache: %s ms/iter\n", round($coldResults['hydrate (cold)'], 4));
-printf("New cold-cache:     %s ms/iter\n", round($coldResults['new (cold)'], 4));
-
-// ──────────────────────────────────────────────────────────────────────────────
-// Isolated write benchmark (serialisation only, no DB query)
-// ──────────────────────────────────────────────────────────────────────────────
-
-echo PHP_EOL . '── Write speed (serialisation only, warm DB, N=' . $iterations . ') ─────────────────────' . PHP_EOL;
-
-$writeCounts = [10, 100, 500, 1000, 10000];
-
-printf("%-8s %-16s %-16s %-16s\n", 'Count', 'Old write', 'Hydrate write', 'New write');
-echo str_repeat('─', 60) . PHP_EOL;
-
-foreach ($writeCounts as $count) {
+foreach ($counts as $count) {
     seedRedirects($count);
 
     $collection  = Redirect::get();
@@ -308,26 +266,43 @@ foreach ($writeCounts as $count) {
         'status_code' => $r->getStatusCode(),
         'constraints' => $r->getConstraints(),
     ])->values()->all();
+    $dtoArray = $collection->map(fn (Redirect $r) => RedirectDTO::fromRedirect($r))->values()->all();
 
     $writeResults = Benchmark::measure([
-        'old'     => function () use ($collection) {
-            $s = makeStore(); $s->put('redirects', $collection);
-        },
-        'hydrate' => function () use ($modelArrays) {
-            $s = makeStore(); $s->put('redirects', $modelArrays);
-        },
-        'new'     => function () use ($plainArray) {
-            $s = makeStore(); $s->put('redirects', $plainArray);
-        },
+        'old'     => fn () => (makeStore())->put('redirects', $collection),
+        'hydrate' => fn () => (makeStore())->put('redirects', $modelArrays),
+        'new'     => fn () => (makeStore())->put('redirects', $plainArray),
+        'dto'     => fn () => (makeStore())->put('redirects', $dtoArray),
     ], $iterations);
 
-    printf("%-8d %-16s %-16s %-16s\n",
+    printf("%-8d %-16s %-16s %-16s %-16s\n",
         $count,
         round($writeResults['old'], 4) . ' ms',
         round($writeResults['hydrate'], 4) . ' ms',
         round($writeResults['new'], 4) . ' ms',
+        round($writeResults['dto'], 4) . ' ms',
     );
 }
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Cold-cache benchmark (DB query + write + read, N=10)
+// ──────────────────────────────────────────────────────────────────────────────
+
+echo PHP_EOL . '── Cold-cache speed (10 iterations, 500 redirects) ───────────────────────────' . PHP_EOL;
+
+seedRedirects(500);
+
+$coldResults = Benchmark::measure([
+    'old (cold)'     => fn () => oldApproach(makeStore()),
+    'hydrate (cold)' => fn () => hydrateApproach(makeStore()),
+    'new (cold)'     => fn () => newApproach(makeStore()),
+    'dto (cold)'     => fn () => dtoApproach(makeStore()),
+], 10);
+
+printf("Old:      %s ms/iter\n", round($coldResults['old (cold)'], 4));
+printf("Hydrate:  %s ms/iter\n", round($coldResults['hydrate (cold)'], 4));
+printf("Plain arr:%s ms/iter\n", round($coldResults['new (cold)'], 4));
+printf("DTO:      %s ms/iter\n", round($coldResults['dto (cold)'], 4));
 
 echo PHP_EOL;
 

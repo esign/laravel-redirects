@@ -9,7 +9,7 @@ Redirects are now matched by specificity rather than database insertion order:
 
 If you were relying on database insertion order to resolve conflicts between overlapping redirects, you may need to review your configuration.
 
-If you need custom ordering, you can extend `CheckForRedirects` and override the `compareRedirects` method.
+If you need custom ordering, you can extend `CheckForRedirects` and override the `sortRedirects` method.
 
 ## From v1 to v2
 This package now has improved support for caching.
